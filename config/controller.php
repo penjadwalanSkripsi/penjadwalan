@@ -259,14 +259,26 @@ function update_detailpesanan($post)
 {
     global $koneksi;
 
-    $id_detailpesanan = $post['id'];
-    $id_barang = $post['id_barang'];
-    $id_pesanan = $post['id_pesanan'];
-    $jumlah = $post['jumlah'];
-
-    //query ubah data
-    $query = "INSERT INTO detail_pesanan (id_pesanan, id_barang, jumlah, tgl_permintaan) VALUES('$id_pesanan', '$id_barang', '$jumlah', '$tgl_permintaan')";
+    // Mengambil data dari form dan meloloskan karakter khusus
+    $id_detail_pesanan = mysqli_real_escape_string($koneksi, strip_tags($post['id_detail_pesanan']));
+    $id_pesanan = mysqli_real_escape_string($koneksi, strip_tags($post['id_pesanan']));
+    $id_barang = mysqli_real_escape_string($koneksi, strip_tags($post['id_barang']));
+    $qty = mysqli_real_escape_string($koneksi, strip_tags($post['qty']));
+    $tgl_permintaan = mysqli_real_escape_string($koneksi, strip_tags($post['tgl_permintaan']));
+    // Memastikan ID customer menggunakan tanda petik jika merupakan tipe string
+    $query = "UPDATE detail_pesanan SET 
+                id_pesanan = '$id_pesanan', 
+                id_barang = '$id_barang', 
+                qty = '$qty', 
+                tgl_permintaan = '$tgl_permintaan' 
+              WHERE id_detail_pesanan = '$id_detail_pesanan'";
     mysqli_query($koneksi, $query);
+
+    // Pengecekan error untuk debugging
+    if (mysqli_error($koneksi)) {
+        echo "Error: " . mysqli_error($koneksi); // Debugging, hapus atau matikan dalam produksi
+        return 0;
+    }
 
     return mysqli_affected_rows($koneksi);
 }

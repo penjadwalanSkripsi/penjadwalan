@@ -22,7 +22,6 @@
     <?php include '../tema_menu/header_Admin.php';
     include '../tema_menu/sidebar_Admin.php';
 
-
     $id_pesanan = isset($_GET['idp']) ? $_GET['idp'] : '';
     $data_detailpesanan = select("
     SELECT 
@@ -40,11 +39,7 @@
     WHERE detail_pesanan.id_pesanan = '$id_pesanan'
     ");
 
-
     $products = select("SELECT id, nama FROM barang");
-
-
-
 
     if (isset($_POST['tambah_detailpesanan'])) {
         if (create_detailpesanan($_POST) > 0) {
@@ -59,7 +54,23 @@
                 </script>";
         }
     }
+
+    if (isset($_POST['update_detailpesanan'])) {
+        if (update_detailpesanan($_POST) > 0) {
+            echo "<script>
+                        alert('Data Pesanan Berhasil Diupdate');
+                        document.location.href = 'lihat_detailpesanan.php?idp=$id_pesanan';
+                </script>";
+        } else {
+            echo "<script>
+                        alert('Data Pesanan Gagal Diupdate');
+                        document.location.href = 'lihat_detailpesanan.php?idp=$id_pesanan';
+                </script>";
+        }
+    }
     ?>
+
+
 
     <div id="layoutSidenav_content">
         <main>
@@ -79,10 +90,6 @@
                     <button type="button" class="btn btn-info mb-4" data-toggle="modal" data-target="#exampleModal">
                         Tambah Pesanan Baru
                 </div>
-
-
-
-
 
                 <div class="card mb-4">
                     <div class="card-header">
@@ -123,7 +130,14 @@
 
 
                                             <td width="15%" class="text-center">
-                                                <a href="ubah_detailpesanan.php" class="btn btn-primary">Ubah</a>
+                                                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#updateModal"
+                                                    onclick="updateDetailPesanan('<?= $detailpesanan['id_detail_pesanan']; ?>', 
+                                 '<?= $detailpesanan['id_pesanan']; ?>', 
+                                 '<?= $detailpesanan['id_barang']; ?>', 
+                                 '<?= $detailpesanan['qty']; ?>', 
+                                 '<?= $detailpesanan['tgl_permintaan']; ?>')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
                                                 <a href="hapus_detail_pesanan.php?id_detail_pesanan=<?= $detailpesanan['id_detail_pesanan']; ?>" class="btn btn-danger" onclick="return confirm('Yakin Data User : <?= $tuser['nama_lengkap']; ?>  Akan Dihapus ?');"><i class="fas fa-trash"></i></a>
                                             </td>
                                         </tr>
@@ -145,8 +159,6 @@
     </div>
 
     <!-- Modal -->
-    <!-- Modal -->
-    <!-- Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -160,8 +172,6 @@
                             <label for="id_detail_pesanan">ID Detail Pesanan:</label>
                             <input type="text" value="<?= generateIdDetailPesanan(); ?>" id="id_detail_pesanan" name="id_detail_pesanan" class="form-control" readonly />
                         </div>
-
-                        <!-- Menggunakan ID Pesanan yang sedang dipilih -->
                         <div class="form-group">
                             <label for="id_pesanan">ID Pesanan</label>
                             <input type="text" value="<?= $id_pesanan; ?>" id="id_pesanan" name="id_pesanan" class="form-control" readonly />
@@ -202,12 +212,65 @@
         </div>
     </div>
 
+    <!-- Modal Update Detail Pesanan -->
+    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title fs-5" id="updateModalLabel">Update Detail Pemesanan</h3>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="post">
+                        <div class="form-group">
+                            <label for="update_id_detail_pesanan">ID Detail Pesanan:</label>
+                            <input type="text" id="update_id_detail_pesanan" name="id_detail_pesanan" class="form-control" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label for="update_id_pesanan">ID Pesanan</label>
+                            <input type="text" id="update_id_pesanan" name="id_pesanan" class="form-control" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label for="update_id_barang">Nama Barang</label>
+                            <select id="update_id_barang" name="id_barang" class="form-control" required>
+                                <option value="">-- Pilih Barang --</option>
+                                <?php foreach ($products as $product): ?>
+                                    <option value="<?= $product['id']; ?>">
+                                        <?= $product['id']; ?> - <?= $product['nama']; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="update_qty">Jumlah</label>
+                            <input type="number" id="update_qty" name="qty" class="form-control" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="update_tgl_permintaan">Tanggal Permintaan:</label>
+                            <input type="date" id="update_tgl_permintaan" name="tgl_permintaan" class="form-control" required />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" name="update_detailpesanan" class="btn btn-primary">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <script>
+        function updateDetailPesanan(idDetailPesanan, idPesanan, idBarang, qty, tglPermintaan) {
+            // Set the values to the update modal fields
+            document.getElementById('update_id_detail_pesanan').value = idDetailPesanan;
+            document.getElementById('update_id_pesanan').value = idPesanan;
+            document.getElementById('update_id_barang').value = idBarang;
+            document.getElementById('update_qty').value = qty;
+            document.getElementById('update_tgl_permintaan').value = tglPermintaan;
+        }
+    </script>
 
 </body>
-
-
-
 </div>
 </div>
 </div>
