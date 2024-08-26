@@ -76,16 +76,7 @@
         <main>
             <div class="container-fluid">
                 <h1 class="mt-4">Data Detail Pesanan</h1>
-                <br>
 
-                <div class="row">
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card bg-primary text-white mb-4">
-                            <div class="card-body">Jumlah Barang :</div>
-                        </div>
-                    </div>
-                </div>
-                <!-- tambahkan button tambah detail pemesanan -->
                 <div class="row">
                     <button type="button" class="btn btn-info mb-4" data-toggle="modal" data-target="#exampleModal">
                         Tambah Pesanan Baru
@@ -123,19 +114,18 @@
                                             <td><?= $detailpesanan['id_pesanan']; ?></td>
                                             <td><?= $detailpesanan['nama_barang']; ?></td>
                                             <td><?= $detailpesanan['qty']; ?></td>
-                                            <td><?= $detailpesanan['harga']; ?></td>
+                                            <td><?= 'Rp ' . number_format($detailpesanan['harga'], 0, ',', '.'); ?></td> <!-- Format harga sebagai Rupiah -->
                                             <td><?= $detailpesanan['tgl_pesanan']; ?></td>
                                             <td><?= $detailpesanan['tgl_permintaan']; ?></td>
-                                            <td><?= $detailpesanan['qty'] * $detailpesanan['harga']; ?></td>
-
+                                            <td><?= 'Rp ' . number_format($detailpesanan['qty'] * $detailpesanan['harga'], 0, ',', '.'); ?></td> <!-- Format subtotal sebagai Rupiah -->
 
                                             <td width="15%" class="text-center">
                                                 <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#updateModal"
                                                     onclick="updateDetailPesanan('<?= $detailpesanan['id_detail_pesanan']; ?>', 
-                                 '<?= $detailpesanan['id_pesanan']; ?>', 
-                                 '<?= $detailpesanan['id_barang']; ?>', 
-                                 '<?= $detailpesanan['qty']; ?>', 
-                                 '<?= $detailpesanan['tgl_permintaan']; ?>')">
+                '<?= $detailpesanan['id_pesanan']; ?>', 
+                '<?= $detailpesanan['id_barang']; ?>', 
+                '<?= $detailpesanan['qty']; ?>', 
+                '<?= $detailpesanan['tgl_permintaan']; ?>')">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
                                                 <a href="hapus_detail_pesanan.php?id_detail_pesanan=<?= $detailpesanan['id_detail_pesanan']; ?>" class="btn btn-danger" onclick="return confirm('Yakin Data User : <?= $tuser['nama_lengkap']; ?>  Akan Dihapus ?');"><i class="fas fa-trash"></i></a>
@@ -143,8 +133,8 @@
                                         </tr>
                                     <?php endforeach ?>
 
-
                                 </tbody>
+
 
                             </table>
                         </div>

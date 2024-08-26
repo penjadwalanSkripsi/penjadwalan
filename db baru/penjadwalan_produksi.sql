@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.1.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 01 Agu 2024 pada 03.39
--- Versi server: 10.4.24-MariaDB
--- Versi PHP: 8.1.6
+-- Waktu pembuatan: 26 Agu 2024 pada 15.53
+-- Versi server: 10.4.21-MariaDB
+-- Versi PHP: 8.0.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -48,34 +48,80 @@ INSERT INTO `barang` (`id`, `kode`, `nama`, `harga`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Struktur dari tabel `customer`
+--
+
+CREATE TABLE `customer` (
+  `id_customer` varchar(11) NOT NULL,
+  `nama` varchar(255) NOT NULL,
+  `alamat` text NOT NULL,
+  `no_hp` varchar(20) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `tgl_daftar` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data untuk tabel `customer`
+--
+
+INSERT INTO `customer` (`id_customer`, `nama`, `alamat`, `no_hp`, `email`, `tgl_daftar`) VALUES
+('CS001', 'bambang', 'bandung', '0824124', 'bambang@gmail.com', '2024-08-24'),
+('CS002', 'mika', 'jakarta', '', 'mika@gmail.com', '2024-08-24');
+
+-- --------------------------------------------------------
+
+--
 -- Struktur dari tabel `detail_pesanan`
 --
 
 CREATE TABLE `detail_pesanan` (
-  `id` int(20) NOT NULL,
-  `id_barang` int(20) NOT NULL,
-  `id_pesanan` int(20) NOT NULL,
-  `jumlah` int(20) NOT NULL
+  `id_detail_pesanan` varchar(20) NOT NULL,
+  `id_pesanan` varchar(20) DEFAULT NULL,
+  `id_barang` int(11) DEFAULT NULL,
+  `qty` int(11) DEFAULT NULL,
+  `tgl_permintaan` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data untuk tabel `detail_pesanan`
 --
 
-INSERT INTO `detail_pesanan` (`id`, `id_barang`, `id_pesanan`, `jumlah`) VALUES
-(1, 11, 2024000001, 20);
+INSERT INTO `detail_pesanan` (`id_detail_pesanan`, `id_pesanan`, `id_barang`, `qty`, `tgl_permintaan`) VALUES
+('DTLPSN001', 'PSN001', 11, 70, '2024-08-30'),
+('DTLPSN002', 'PSN001', 12, 80, '2024-08-31'),
+('DTLPSN003', 'PSN001', 12, 20, '2024-08-29');
 
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `mesin`
+-- Struktur dari tabel `edd`
 --
 
-CREATE TABLE `mesin` (
+CREATE TABLE `edd` (
   `id` int(20) NOT NULL,
   `kode` varchar(50) NOT NULL,
-  `nama` varchar(225) NOT NULL,
-  `tahapan` varchar(50) NOT NULL
+  `tanggal` date NOT NULL,
+  `tanggal_mulai` date NOT NULL,
+  `tanggal_selesai` date NOT NULL,
+  `rata_wp` int(20) NOT NULL,
+  `utilisasi` int(20) NOT NULL,
+  `rata_jp` int(20) NOT NULL,
+  `rata_kp` int(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `penjadwalan`
+--
+
+CREATE TABLE `penjadwalan` (
+  `id` int(20) NOT NULL,
+  `id_pesanan` int(20) NOT NULL,
+  `tanggal_mulai` date NOT NULL,
+  `tanggal_selesai` date NOT NULL,
+  `lama_proses` double NOT NULL,
+  `id_edd` int(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -85,18 +131,18 @@ CREATE TABLE `mesin` (
 --
 
 CREATE TABLE `pesanan` (
-  `id` int(20) NOT NULL,
-  `nama` varchar(225) NOT NULL,
-  `tanggal` date NOT NULL,
-  `tgl_permintaan` date NOT NULL
+  `id_pesanan` varchar(20) NOT NULL,
+  `tgl_pesanan` date DEFAULT NULL,
+  `id_customer` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data untuk tabel `pesanan`
 --
 
-INSERT INTO `pesanan` (`id`, `nama`, `tanggal`, `tgl_permintaan`) VALUES
-(2024000001, 'Tukiman', '2024-07-01', '2024-07-08');
+INSERT INTO `pesanan` (`id_pesanan`, `tgl_pesanan`, `id_customer`) VALUES
+('PSN001', '2024-08-26', 'CS001'),
+('PSN002', '2024-08-22', 'CS002');
 
 -- --------------------------------------------------------
 
@@ -135,24 +181,39 @@ ALTER TABLE `barang`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indeks untuk tabel `customer`
+--
+ALTER TABLE `customer`
+  ADD PRIMARY KEY (`id_customer`);
+
+--
 -- Indeks untuk tabel `detail_pesanan`
 --
 ALTER TABLE `detail_pesanan`
-  ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`id_detail_pesanan`),
   ADD KEY `id_pesanan` (`id_pesanan`),
   ADD KEY `id_barang` (`id_barang`);
 
 --
--- Indeks untuk tabel `mesin`
+-- Indeks untuk tabel `edd`
 --
-ALTER TABLE `mesin`
+ALTER TABLE `edd`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `penjadwalan`
+--
+ALTER TABLE `penjadwalan`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `id_pesanan` (`id_pesanan`),
+  ADD KEY `id_edd` (`id_edd`);
 
 --
 -- Indeks untuk tabel `pesanan`
 --
 ALTER TABLE `pesanan`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id_pesanan`),
+  ADD KEY `id_customer` (`id_customer`);
 
 --
 -- Indeks untuk tabel `tuser`
@@ -171,28 +232,22 @@ ALTER TABLE `barang`
   MODIFY `id` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
--- AUTO_INCREMENT untuk tabel `detail_pesanan`
+-- AUTO_INCREMENT untuk tabel `edd`
 --
-ALTER TABLE `detail_pesanan`
-  MODIFY `id` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT untuk tabel `mesin`
---
-ALTER TABLE `mesin`
+ALTER TABLE `edd`
   MODIFY `id` int(20) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT untuk tabel `pesanan`
+-- AUTO_INCREMENT untuk tabel `penjadwalan`
 --
-ALTER TABLE `pesanan`
-  MODIFY `id` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2024000002;
+ALTER TABLE `penjadwalan`
+  MODIFY `id` int(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT untuk tabel `tuser`
 --
 ALTER TABLE `tuser`
-  MODIFY `id` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)
@@ -202,8 +257,14 @@ ALTER TABLE `tuser`
 -- Ketidakleluasaan untuk tabel `detail_pesanan`
 --
 ALTER TABLE `detail_pesanan`
-  ADD CONSTRAINT `detail_pesanan_ibfk_1` FOREIGN KEY (`id_pesanan`) REFERENCES `pesanan` (`id`),
+  ADD CONSTRAINT `detail_pesanan_ibfk_1` FOREIGN KEY (`id_pesanan`) REFERENCES `pesanan` (`id_pesanan`),
   ADD CONSTRAINT `detail_pesanan_ibfk_2` FOREIGN KEY (`id_barang`) REFERENCES `barang` (`id`);
+
+--
+-- Ketidakleluasaan untuk tabel `pesanan`
+--
+ALTER TABLE `pesanan`
+  ADD CONSTRAINT `pesanan_ibfk_1` FOREIGN KEY (`id_customer`) REFERENCES `customer` (`id_customer`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
