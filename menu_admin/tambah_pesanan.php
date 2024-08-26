@@ -67,34 +67,11 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="id_produk">Nama Produk</label>
-                        <select id="id_produk" name="id_produk" class="form-control" required>
-                            <option value="">-- Pilih Produk --</option>
-                            <?php foreach ($product as $produk): ?>
-                                <option value="<?= $produk['id']; ?>">
-                                    <?= $produk['id']; ?> - <?= $produk['nama']; ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
 
                         <div class="form-group">
-                            <label for="jumlah">Jumlah:</label>
-                            <input type="text" value="" id="jumlah" name="jumlah" class="form-control" required />
-                        </div>
-
-
-                        <div class="form-group">
-                            <label for="tgl_pemesanan">Tanggal Pemesanan:</label>
+                            <label for="tgl_pesanan">Tanggal Pemesanan:</label>
                             <div class="input-group date" id="id_4">
-                                <input type="date" value="" id="tgl_pemesanan" name="tgl_pemesanan" class="form-control" required />
-
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="tgl_permintaan">Tanggal Permintaan:</label>
-                            <div class="input-group date" id="id_4">
-                                <input type="date" value="" id="tgl_permintaan" name="tgl_permintaan" class="form-control" required />
+                                <input type="date" value="" id="tgl_pesanan" name="tgl_pesanan" class="form-control" required />
 
                             </div>
                         </div>

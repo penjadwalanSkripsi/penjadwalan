@@ -204,13 +204,10 @@ function create_pesanan($post)
     global $koneksi;
 
     $id_pesanan = strip_tags($post['id_pesanan']);
+    $tgl_pesanan = strip_tags($post['tgl_pesanan']);
     $id_customer = strip_tags($post['id_customer']);
-    $id_produk = strip_tags($post['id_produk']);
-    $jumlah = strip_tags($post['jumlah']);
-    $tgl_pemesanan = strip_tags($post['tgl_pemesanan']);
-    $tgl_permintaan = strip_tags($post['tgl_permintaan']);
 
-    $query = "INSERT INTO pesanan VALUES('$id_pesanan', '$id_customer', '$id_produk', '$tgl_pemesanan', '$jumlah', '$tgl_permintaan')";
+    $query = "INSERT INTO pesanan VALUES('$id_pesanan', '$tgl_pesanan', '$id_customer')";
 
     mysqli_query($koneksi, $query);
 
@@ -222,32 +219,36 @@ function delete_pesanan($id_pesanan)
 {
     global $koneksi;
 
-    //query hapus data
-    $query = "DELETE FROM pesanan WHERE id = $id_pesanan";
+    $id_pesanan = mysqli_real_escape_string($koneksi, $id_pesanan);
+
+    // query hapus data dengan tanda petik tunggal untuk string
+    $query = "DELETE FROM pesanan WHERE id_pesanan = '$id_pesanan'";
 
     mysqli_query($koneksi, $query);
+
+    // Tambahkan pengecekan error untuk debugging
+    if (mysqli_error($koneksi)) {
+        echo "Error: " . mysqli_error($koneksi); // Untuk debugging, hapus atau matikan dalam produksi
+        return 0;
+    }
 
     return mysqli_affected_rows($koneksi);
 }
 
-//fungsi menambahkan data pesanan
 function create_detailpesanan($post)
 {
-    //memanggil function tgl
 
     global $koneksi;
 
-    $id_detailpesanan = $post['id'];
-    $id_barang = $post['id_barang'];
+    $id_detail_pesanan = $post['id_detail_pesanan'];
     $id_pesanan = $post['id_pesanan'];
-    $jumlah = $post['jumlah'];
+    $id_barang = $post['id_barang'];
+    $qty = $post['qty'];
+    $tgl_permintaan = $post['tgl_permintaan'];
 
-    //mengkonversi ke database
-    // $tanggal1 = Inputtgl($tanggal);
-    // $tanggal2 = Inputtgl($tgl_permintaan);
 
     //query tambah data
-    $query = "INSERT INTO detail_pesanan VALUES('$id', '$id_barang', '$id_pesanan', '$jumlah')";
+    $query = "INSERT INTO detail_pesanan VALUES('$id_detail_pesanan', '$id_pesanan', '$id_barang', '$qty', '$tgl_permintaan')";
 
     mysqli_query($koneksi, $query);
 
@@ -264,9 +265,50 @@ function update_detailpesanan($post)
     $jumlah = $post['jumlah'];
 
     //query ubah data
-    $query = "UPDATE detail_pesanan SET id = '$id_barang', id_barang = '$id_pesanan', harga = '$jumlah' WHERE id = $id_detailpesanan";
-
+    $query = "INSERT INTO detail_pesanan (id_pesanan, id_barang, jumlah, tgl_permintaan) VALUES('$id_pesanan', '$id_barang', '$jumlah', '$tgl_permintaan')";
     mysqli_query($koneksi, $query);
 
     return mysqli_affected_rows($koneksi);
+}
+
+function delete_detailpesanan($id_detail_pesanan)
+{
+    global $koneksi;
+
+    $id_detail_pesanan = mysqli_real_escape_string($koneksi, $id_detail_pesanan);
+
+    // query hapus data dengan tanda petik tunggal untuk string
+    $query = "DELETE FROM detail_pesanan WHERE id_detail_pesanan = '$id_detail_pesanan'";
+
+    mysqli_query($koneksi, $query);
+
+    // Tambahkan pengecekan error untuk debugging
+    if (mysqli_error($koneksi)) {
+        echo "Error: " . mysqli_error($koneksi); // Untuk debugging, hapus atau matikan dalam produksi
+        return 0;
+    }
+
+    return mysqli_affected_rows($koneksi);
+}
+
+function generateIdDetailPesanan()
+{
+    global $koneksi;
+
+    // Query untuk mendapatkan ID terakhir
+    $query = "SELECT id_detail_pesanan FROM detail_pesanan ORDER BY id_detail_pesanan DESC LIMIT 1";
+    $result = mysqli_query($koneksi, $query);
+    $row = mysqli_fetch_assoc($result);
+
+    // Jika belum ada data sama sekali
+    if ($row) {
+        $lastId = $row['id_detail_pesanan'];
+        // Ambil angka dari ID terakhir
+        $number = intval(substr($lastId, 7));
+        $newId = 'DTLPSN' . str_pad($number + 1, 3, '0', STR_PAD_LEFT);
+    } else {
+        $newId = 'DTLPSN001';
+    }
+
+    return $newId;
 }

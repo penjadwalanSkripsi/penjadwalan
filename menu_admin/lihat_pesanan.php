@@ -25,15 +25,11 @@
     $jmlh_barang = count(select("SELECT * FROM barang"));
 
     $data_pesanan = select("SELECT 
-                            pesanan.id_pesanan, 
-                            customer.nama AS nama_pemesan, 
-                            barang.nama AS nama_produk, 
-                            pesanan.tgl_pemesanan, 
-                            pesanan.jumlah, 
-                            pesanan.tgl_permintaan 
-                        FROM pesanan
-                        JOIN customer ON pesanan.id_customer = customer.id_customer
-                        JOIN barang ON pesanan.id_produk = barang.id");
+                             pesanan.id_pesanan, 
+                             pesanan.tgl_pesanan, 
+                             customer.nama AS nama_pemesan
+                         FROM pesanan
+                         JOIN customer ON pesanan.id_customer = customer.id_customer");
     if (isset($_POST['tambah_pesanan'])) {
         if (create_pesanan($_POST) > 0) {
             echo "<script>
@@ -86,10 +82,7 @@
                                     <tr>
                                         <th>Id Pesanan</th>
                                         <th>Nama Pemesan</th>
-                                        <th>Produk yang dipesan</th>
                                         <th>Tanggal Pesanan</th>
-                                        <th>Jumlah</th>
-                                        <th>Tanggal Permintaan</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -101,13 +94,10 @@
                                         <tr>
                                             <td><?= $pesanan['id_pesanan']; ?></td>
                                             <td><?= $pesanan['nama_pemesan']; ?></td>
-                                            <td><?= $pesanan['nama_produk']; ?></td>
-                                            <td><?= date('d-m-Y', strtotime($pesanan['tgl_pemesanan'])); ?></td>
-                                            <td><?= $pesanan['jumlah']; ?></td>
-                                            <td><?= date('d-m-Y', strtotime($pesanan['tgl_permintaan'])); ?></td>
+                                            <td><?= date('d-m-Y', strtotime($pesanan['tgl_pesanan'])); ?></td>
                                             <td width="15%" class="text-center">
                                                 <a href="lihat_detailpesanan.php?idp=<?= $pesanan['id_pesanan']; ?>" class="btn btn-primary">Tampilkan</a>
-                                                <a href="hapus_pesanan.php?id=<?= $pesanan['id_pesanan']; ?>" class="btn btn-danger" onclick="return confirm('Yakin Data User : <?= $tuser['nama_lengkap']; ?>  Akan Dihapus ?');"><i class="fas fa-trash"></i></a>
+                                                <a href="hapus_pesanan.php?id_pesanan=<?= $pesanan['id_pesanan']; ?>" class="btn btn-danger" onclick="return confirm('Yakin Data User : <?= $tuser['nama_lengkap']; ?>  Akan Dihapus ?');"><i class="fas fa-trash"></i></a>
                                             </td>
                                         </tr>
                                     <?php endforeach ?>
